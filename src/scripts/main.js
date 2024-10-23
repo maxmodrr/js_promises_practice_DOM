@@ -1,6 +1,8 @@
 'use strict';
 
 const clicks = ['click', 'contextmenu'];
+let leftClicked = false;
+let rightClicked = false;
 
 const firstPromise = new Promise((resolve, reject) => {
   setTimeout(() => reject(new Error(`First promise was rejected`)), 3000);
@@ -19,30 +21,38 @@ const secondPromise = new Promise((resolve) => {
 });
 
 const thirdPromise = new Promise((resolve) => {
-  clicks.forEach((e) => {
-    document.addEventListener(e, () => {
-      clicks.splice(clicks.indexOf(e), 1);
-
-      if (clicks.length === 0) {
-        resolve('Third promise was resolved');
-      }
-    });
+  document.addEventListener('click', () => {
+    leftClicked = true;
+    isClicked();
   });
+
+  document.addEventListener('contextmenu', () => {
+    rightClicked = true;
+    isClicked();
+  });
+
+  function isClicked() {
+    if (leftClicked && rightClicked) {
+      resolve('Third promise was resolved');
+    }
+  }
 });
 
-const success = () => {
+const success = (message) => {
   const div = document.createElement('div');
 
   div.setAttribute('data-qa', 'notification');
   div.classList.add('success');
+  div.textContent = message;
   document.body.append(div);
 };
 
-const error = () => {
+const error = (message) => {
   const div = document.createElement('div');
 
   div.setAttribute('data-qa', 'notification');
   div.classList.add('error');
+  div.textContent = message;
   document.body.append(div);
 };
 
